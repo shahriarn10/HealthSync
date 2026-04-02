@@ -20,3 +20,11 @@ export const deleteMedicine = (t, id) => API.delete(`/pharmacy/${id}`, { headers
 export const getBloodData = (t) => API.get("/blood", { headers: { Authorization: `Bearer ${t}` } });
 export const addDonor = (t, data) => API.post("/blood", data, { headers: { Authorization: `Bearer ${t}` } });
 export const deleteDonor = (t, id) => API.delete(`/blood/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+
+// Admin
+export const getAdminOverview = (t) =>
+    API.get("/admin/overview", { headers: { Authorization: `Bearer ${t}` } });
+export const adminDeleteUser = (t, id) =>
+    API.delete(`/admin/user/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+export const adminDeleteItem = (t, type, id) =>
+    API.delete(`/admin/${type}/${id}`, { headers: { Authorization: `Bearer ${t}` } });
