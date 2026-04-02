@@ -9,9 +9,14 @@ export const register = (data) => API.post("/auth/register", data);
 export const login = (data) => API.post("/auth/login", data);
 
 // Protected endpoints
-export const getDoctorData = (token) =>
-    API.get("/doctor", { headers: { Authorization: `Bearer ${token}` } });
-export const getPharmacyData = (token) =>
-    API.get("/pharmacy", { headers: { Authorization: `Bearer ${token}` } });
-export const getBloodData = (token) =>
-    API.get("/blood", { headers: { Authorization: `Bearer ${token}` } });
+export const getDoctorData = (t) => API.get("/doctor", { headers: { Authorization: `Bearer ${t}` } });
+export const addDoctorData = (t, data) => API.post("/doctor", data, { headers: { Authorization: `Bearer ${t}` } });
+export const deleteAppointment = (t, id) => API.delete(`/doctor/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+
+export const getPharmacyData = (t) => API.get("/pharmacy", { headers: { Authorization: `Bearer ${t}` } });
+export const addMedicine = (t, data) => API.post("/pharmacy", data, { headers: { Authorization: `Bearer ${t}` } });
+export const deleteMedicine = (t, id) => API.delete(`/pharmacy/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+
+export const getBloodData = (t) => API.get("/blood", { headers: { Authorization: `Bearer ${t}` } });
+export const addDonor = (t, data) => API.post("/blood", data, { headers: { Authorization: `Bearer ${t}` } });
+export const deleteDonor = (t, id) => API.delete(`/blood/${id}`, { headers: { Authorization: `Bearer ${t}` } });
