@@ -1,30 +1,32 @@
 import axios from "axios";
 
 export const API = axios.create({
-    baseURL: "[localhost](http://localhost:5000/api)" // match your backend port
+    baseURL: "[localhost](http://localhost:5000/api)"
 });
 
 // Auth
 export const register = (data) => API.post("/auth/register", data);
 export const login = (data) => API.post("/auth/login", data);
 
-// Protected endpoints
-export const getDoctorData = (t) => API.get("/doctor", { headers: { Authorization: `Bearer ${t}` } });
-export const addDoctorData = (t, data) => API.post("/doctor", data, { headers: { Authorization: `Bearer ${t}` } });
-export const deleteAppointment = (t, id) => API.delete(`/doctor/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+// Helper
+const authHeader = (token) => ({ headers: { Authorization: `Bearer ${token}` } });
 
-export const getPharmacyData = (t) => API.get("/pharmacy", { headers: { Authorization: `Bearer ${t}` } });
-export const addMedicine = (t, data) => API.post("/pharmacy", data, { headers: { Authorization: `Bearer ${t}` } });
-export const deleteMedicine = (t, id) => API.delete(`/pharmacy/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+// Doctor
+export const getDoctorData = (token) => API.get("/doctor", authHeader(token));
+export const addDoctorData = (token, data) => API.post("/doctor", data, authHeader(token));
+export const deleteAppointment = (token, id) => API.delete(`/doctor/${id}`, authHeader(token));
 
-export const getBloodData = (t) => API.get("/blood", { headers: { Authorization: `Bearer ${t}` } });
-export const addDonor = (t, data) => API.post("/blood", data, { headers: { Authorization: `Bearer ${t}` } });
-export const deleteDonor = (t, id) => API.delete(`/blood/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+// Pharmacy
+export const getPharmacyData = (token) => API.get("/pharmacy", authHeader(token));
+export const addMedicine = (token, data) => API.post("/pharmacy", data, authHeader(token));
+export const deleteMedicine = (token, id) => API.delete(`/pharmacy/${id}`, authHeader(token));
+
+// Blood
+export const getBloodData = (token) => API.get("/blood", authHeader(token));
+export const addDonor = (token, data) => API.post("/blood", data, authHeader(token));
+export const deleteDonor = (token, id) => API.delete(`/blood/${id}`, authHeader(token));
 
 // Admin
-export const getAdminOverview = (t) =>
-    API.get("/admin/overview", { headers: { Authorization: `Bearer ${t}` } });
-export const adminDeleteUser = (t, id) =>
-    API.delete(`/admin/user/${id}`, { headers: { Authorization: `Bearer ${t}` } });
-export const adminDeleteItem = (t, type, id) =>
-    API.delete(`/admin/${type}/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+export const getAdminOverview = (token) => API.get("/admin/overview", authHeader(token));
+export const adminDeleteUser = (token, id) => API.delete(`/admin/user/${id}`, authHeader(token));
+export const adminDeleteItem = (token, type, id) => API.delete(`/admin/${type}/${id}`, authHeader(token));
