@@ -22,6 +22,6 @@ app.use("/api/doctor", doctorRoutes);
 app.use("/api/pharmacy", pharmacyRoutes);
 app.use("/api/blood", bloodRoutes);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 app.use("/api/admin", adminRoutes);

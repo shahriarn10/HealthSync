@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const API = axios.create({
-    baseURL: "[localhost](http://localhost:5000/api)" // match your backend port
+    baseURL: "http://localhost:5002/api" // match your backend port
 });
 
 // Auth

@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0ea5e9;
+  --color-primary-hover: #0284c7;
+  --color-secondary: #0f172a;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased min-h-screen bg-gradient-to-br from-slate-50 to-slate-100;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md shadow-xl border border-white/20 rounded-2xl;
+  }
+  
+  .btn-primary {
+    @apply flex items-center justify-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 disabled:opacity-50;
+  }
+
+  .btn-danger {
+    @apply flex items-center justify-center gap-2 px-3 py-1.5 bg-red-50 hover:bg-red-500 text-red-600 hover:text-white font-medium rounded-lg transition-colors border border-red-200 hover:border-transparent active:scale-95;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all duration-200;
+  }
+}
