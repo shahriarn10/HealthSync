@@ -51,3 +51,17 @@ export const deleteItem = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+/** Verify/Approve a blood donor */
+export const verifyBloodDonor = async (req, res) => {
+    try {
+        const donor = await BloodDonation.findByIdAndUpdate(
+            req.params.id,
+            { isVerified: true },
+            { new: true }
+        );
+        res.json({ message: "Blood donor verified", donor });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

@@ -28,3 +28,5 @@ export const adminDeleteUser = (t, id) =>
     API.delete(`/admin/user/${id}`, { headers: { Authorization: `Bearer ${t}` } });
 export const adminDeleteItem = (t, type, id) =>
     API.delete(`/admin/${type}/${id}`, { headers: { Authorization: `Bearer ${t}` } });
+export const adminVerifyBloodDonor = (t, id) =>
+    API.put(`/admin/blood/verify/${id}`, {}, { headers: { Authorization: `Bearer ${t}` } });

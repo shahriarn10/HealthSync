@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getAdminOverview, adminDeleteUser, adminDeleteItem } from "../../api";
+import { getAdminOverview, adminDeleteUser, adminDeleteItem, adminVerifyBloodDonor } from "../../api";
 
-import { ShieldAlert, Users, Calendar, Pill, Droplet, Trash2, LayoutDashboard } from "lucide-react";
+import { ShieldAlert, Users, Calendar, Pill, Droplet, Trash2, LayoutDashboard, CheckCircle } from "lucide-react";
 
 export default function AdminDashboard() {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -24,6 +24,7 @@ export default function AdminDashboard() {
 
     const delUser = async (id) => { await adminDeleteUser(user.token, id); load(); };
     const delItem = async (coll, id) => { await adminDeleteItem(user.token, coll, id); load(); };
+    const verifyDonor = async (id) => { await adminVerifyBloodDonor(user.token, id); load(); };
 
     useEffect(() => { load(); }, []);
 
@@ -152,10 +153,20 @@ export default function AdminDashboard() {
                                         {d.donorName}
                                         <span className="bg-rose-100 text-rose-700 text-xs px-2 py-0.5 rounded-md font-bold">{d.bloodType}</span>
                                     </h4>
+                                    <p className="text-xs font-semibold text-slate-500 mt-1">
+                                        Status: {d.isVerified ? <span className="text-emerald-500">Verified</span> : <span className="text-amber-500">Pending Approval</span>}
+                                    </p>
                                 </div>
-                                <button onClick={() => delItem("blood", d._id)} className="btn-danger p-2 rounded-lg">
-                                    <Trash2 size={16} />
-                                </button>
+                                <div className="flex gap-2">
+                                    {!d.isVerified && (
+                                        <button onClick={() => verifyDonor(d._id)} className="bg-green-100 text-green-700 hover:bg-green-200 p-2 rounded-lg transition-colors border border-green-200" title="Approve Donor">
+                                            <CheckCircle size={16} />
+                                        </button>
+                                    )}
+                                    <button onClick={() => delItem("blood", d._id)} className="btn-danger p-2 rounded-lg">
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>

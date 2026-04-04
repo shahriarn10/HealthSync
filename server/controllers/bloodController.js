@@ -2,7 +2,12 @@ import BloodDonation from "../models/BloodDonation.js";
 
 export const getDonations = async (req, res) => {
     try {
-        const donors = await BloodDonation.find();
+        const filter = {};
+        if (req.query.isVerified !== undefined) {
+            filter.isVerified = req.query.isVerified === 'true';
+        }
+        
+        const donors = await BloodDonation.find(filter).sort({ createdAt: -1 });
         res.json(donors);
     } catch (err) {
         res.status(500).json({ error: err.message });
