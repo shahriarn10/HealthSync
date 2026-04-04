@@ -67,8 +67,7 @@ export default function App() {
                         <Route path="/doctor" element={<PrivateRoute><DoctorPage /></PrivateRoute>} />
                         <Route path="/pharmacy" element={<PrivateRoute><PharmacyPage /></PrivateRoute>} />
                         <Route path="/blood" element={<PrivateRoute><BloodPage /></PrivateRoute>} />
-                        {/* Temporarily bypassed PrivateRoute for Admin dashboard preview */}
-                        <Route path="/admin" element={<AdminDashboard />} />
+                        <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
                     </Routes>
                 </main>
             </div>

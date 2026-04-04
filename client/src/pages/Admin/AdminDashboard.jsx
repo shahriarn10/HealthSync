@@ -7,44 +7,19 @@ export default function AdminDashboard() {
     const user = JSON.parse(localStorage.getItem("user"));
     const [data, setData] = useState(null);
 
-    // Temporarily bypassed the admin access block to allow UI preview
-    // if (!user || user.role !== "admin") {
-    //     return (
-    //         <div className="flex flex-col items-center justify-center min-h-[60vh]">
-    //             <ShieldAlert size={64} className="text-red-500 mb-4" />
-    //             <h3 className="text-2xl font-bold text-slate-800">Access Denied</h3>
-    //             <p className="text-slate-500">Administrator privileges required.</p>
-    //         </div>
-    //     );
-    // }
+    if (!user || user.role !== "admin") {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh]">
+                <ShieldAlert size={64} className="text-red-500 mb-4" />
+                <h3 className="text-2xl font-bold text-slate-800">Access Denied</h3>
+                <p className="text-slate-500">Administrator privileges required.</p>
+            </div>
+        );
+    }
 
     const load = async () => {
-        try {
-            const res = await getAdminOverview(user.token);
-            setData(res.data);
-        } catch (error) {
-            // Mock data fallback if MongoDB is not running
-            setData({
-                stats: { totalUsers: 142, appointments: 28, medicines: 156, donors: 45 },
-                users: [
-                    { _id: '1', name: 'Admin User', role: 'admin', email: 'admin@healthsync.com' },
-                    { _id: '2', name: 'Dr. Sarah Smith', role: 'doctor', email: 'sarah@healthsync.com' },
-                    { _id: '3', name: 'John Doe', role: 'user', email: 'john@example.com' }
-                ],
-                appointments: [
-                    { _id: '1', patientName: 'Mike Johnson', doctorName: 'Sarah Smith' },
-                    { _id: '2', patientName: 'Emily Davis', doctorName: 'David Lee' }
-                ],
-                medicines: [
-                    { _id: '1', name: 'Amoxicillin', quantity: 250 },
-                    { _id: '2', name: 'Ibuprofen', quantity: 500 }
-                ],
-                donors: [
-                    { _id: '1', donorName: 'Robert Wilson', bloodType: 'O+' },
-                    { _id: '2', donorName: 'Alice Green', bloodType: 'A-' }
-                ]
-            });
-        }
+        const res = await getAdminOverview(user.token);
+        setData(res.data);
     };
 
     const delUser = async (id) => { await adminDeleteUser(user.token, id); load(); };

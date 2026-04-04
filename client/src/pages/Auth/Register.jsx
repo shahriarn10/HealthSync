@@ -73,6 +73,7 @@ export default function Register() {
                             <option value="doctor">Doctor</option>
                             <option value="pharmacist">Pharmacist</option>
                             <option value="donor">Blood Donor</option>
+                            <option value="admin">System Administrator (Admin)</option>
                         </select>
                     </div>
                     
