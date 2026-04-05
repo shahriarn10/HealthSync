@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const medicineSchema = new mongoose.Schema(
     {
         name: String,
-        type: String,
+        image: String,
         quantity: Number,
         price: Number
     },
