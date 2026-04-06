@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { getAdminOverview, adminDeleteUser, adminDeleteItem, adminVerifyBloodDonor } from "../../api";
-import { 
-    ShieldAlert, Users, Calendar, Pill, Droplet, Trash2, 
-    LayoutDashboard, CheckCircle, Search, Bell, Settings, 
+import {
+    ShieldAlert, Users, Calendar, Pill, Droplet, Trash2,
+    LayoutDashboard, CheckCircle, Search, Bell, Settings,
     LogOut, MoreVertical, Star, ChevronLeft, ChevronRight,
     TrendingUp, ExternalLink, X, AlertCircle, Info, Check
 } from "lucide-react";
-import { 
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+import {
+    BarChart, Bar, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer
 } from 'recharts';
 
@@ -17,7 +17,7 @@ export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState("Dashboard");
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    
+
     // UI State for Modal & Toast
     const [toast, setToast] = useState(null);
     const [modal, setModal] = useState({ show: false, type: '', id: '', message: '' });
@@ -43,7 +43,7 @@ export default function AdminDashboard() {
     const handleAction = async () => {
         const { type, id, coll } = modal;
         setModal({ ...modal, show: false });
-        
+
         try {
             if (type === 'deleteUser') {
                 await adminDeleteUser(user.token, id);
@@ -63,13 +63,13 @@ export default function AdminDashboard() {
 
     useEffect(() => { load(); }, [load]);
 
-    const filteredUsers = useMemo(() => 
+    const filteredUsers = useMemo(() =>
         data?.users?.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase())) || [],
-    [data?.users, searchTerm]);
+        [data?.users, searchTerm]);
 
-    const filteredDonors = useMemo(() => 
+    const filteredDonors = useMemo(() =>
         data?.donors?.filter(d => d.donorName.toLowerCase().includes(searchTerm.toLowerCase()) || d.location.toLowerCase().includes(searchTerm.toLowerCase())) || [],
-    [data?.donors, searchTerm]);
+        [data?.donors, searchTerm]);
 
     if (!user || user.role !== "admin") {
         return (
@@ -88,9 +88,8 @@ export default function AdminDashboard() {
         </div>
     );
     const Toast = () => (
-        <div className={`fixed top-6 right-6 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border transition-all animate-in slide-in-from-right-10 duration-300 ${
-            toast.type === "success" ? "bg-sky-50 border-sky-100 text-sky-800" : "bg-rose-50 border-rose-100 text-rose-800"
-        }`}>
+        <div className={`fixed top-6 right-6 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border transition-all animate-in slide-in-from-right-10 duration-300 ${toast.type === "success" ? "bg-sky-50 border-sky-100 text-sky-800" : "bg-rose-50 border-rose-100 text-rose-800"
+            }`}>
             {toast.type === "success" ? <Check size={18} /> : <AlertCircle size={18} />}
             <span className="font-bold text-sm tracking-tight">{toast.msg}</span>
             <button onClick={() => setToast(null)} className="ml-2 hover:opacity-70"><X size={14} /></button>
@@ -160,18 +159,24 @@ export default function AdminDashboard() {
     );
 
     const SidebarItem = ({ icon: Icon, label }) => (
-        <button 
+        <button
             onClick={() => setActiveTab(label)}
-            className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold ${
-                activeTab === label 
-                ? "bg-sky-600 text-white shadow-lg shadow-sky-200" 
-                : "text-slate-400 hover:text-sky-600 hover:bg-sky-50"
-            }`}
+            className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold ${activeTab === label
+                    ? "bg-sky-600 text-white shadow-lg shadow-sky-200"
+                    : "text-slate-400 hover:text-sky-600 hover:bg-sky-50"
+                }`}
         >
             <Icon size={20} />
             <span className="text-sm">{label}</span>
         </button>
     );
+
+    // Calendar Logic
+    const today = new Date();
+    const currentDay = today.getDate();
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
+    const monthName = today.toLocaleString('default', { month: 'long' });
 
     return (
         <div className="relative min-h-screen bg-[#F8FAFC]/50 p-4 lg:p-8">
@@ -179,7 +184,7 @@ export default function AdminDashboard() {
             {modal.show && <ConfirmModal />}
 
             <div className="flex flex-col lg:flex-row gap-8 max-w-[1600px] mx-auto animate-in fade-in duration-700">
-            
+
                 {/* Sidebar Navigation */}
                 <aside className="w-full lg:w-72 flex flex-col gap-8 shrink-0">
                     <div className="bg-white rounded-[2.5rem] p-4 shadow-sm border border-slate-100 min-h-[700px] flex flex-col sticky top-8">
@@ -195,11 +200,9 @@ export default function AdminDashboard() {
                             <SidebarItem icon={Pill} label="Pharmacy" />
                             <SidebarItem icon={Droplet} label="Blood Bank" />
                         </div>
-                        
+
                         <div className="pt-6 border-t border-slate-50 space-y-2 mb-4">
-                            <button className="w-full flex items-center gap-4 px-6 py-3 text-slate-400 hover:text-slate-600 font-bold transition-all text-sm group">
-                                <Settings size={20} className="group-hover:rotate-45 transition-transform" /> Settings
-                            </button>
+
                             <button onClick={() => { localStorage.removeItem("user"); window.location.reload(); }} className="w-full flex items-center gap-4 px-6 py-3 text-rose-500 hover:text-rose-600 font-bold transition-all text-sm">
                                 <LogOut size={20} /> Log Out
                             </button>
@@ -209,17 +212,17 @@ export default function AdminDashboard() {
 
                 {/* Content Area */}
                 <main className="flex-grow flex flex-col gap-10 min-w-0">
-                    
+
                     {/* Header View */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                         <div className="relative w-full md:w-[450px] group">
                             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-sky-500 transition-colors" size={18} />
-                            <input 
-                                type="text" 
+                            <input
+                                type="text"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder={`Global search in ${activeTab}...`} 
-                                className="w-full pl-14 pr-6 py-4 rounded-3xl bg-white border border-slate-100 shadow-sm outline-none focus:ring-4 focus:ring-sky-500/5 focus:border-sky-500/20 transition-all font-medium text-slate-600" 
+                                placeholder={`Global search in ${activeTab}...`}
+                                className="w-full pl-14 pr-6 py-4 rounded-3xl bg-white border border-slate-100 shadow-sm outline-none focus:ring-4 focus:ring-sky-500/5 focus:border-sky-500/20 transition-all font-medium text-slate-600"
                             />
                         </div>
                         <div className="flex items-center gap-4 bg-white p-2 rounded-[2rem] shadow-sm border border-slate-50">
@@ -247,7 +250,7 @@ export default function AdminDashboard() {
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <StatCard title="Active Users" value={data.stats.totalUsers} icon={Users} bgClass="bg-[#EAF2FF]" textClass="text-[#2F80ED]" subText="+12% vs last month" />
                                         <StatCard title="Appointments" value={data.stats.appointments} icon={Calendar} bgClass="bg-[#FFF4E8]" textClass="text-[#FF8A00]" subText="92% completion rate" />
-                                        <StatCard title="Revenue" value="$24.5k" icon={TrendingUp} bgClass="bg-[#EAF2FF]" textClass="text-[#2F80ED]" subText="Target: $30k" />
+                                        <StatCard title="Revenue" value="৳24.5k" icon={TrendingUp} bgClass="bg-[#EAF2FF]" textClass="text-[#2F80ED]" subText="Target: $30k" />
                                     </div>
                                 </div>
 
@@ -313,17 +316,20 @@ export default function AdminDashboard() {
                             <div className="flex flex-col gap-10">
                                 <div className="bg-white rounded-[3rem] p-10 border border-slate-100 shadow-sm">
                                     <div className="flex items-center justify-between mb-8">
-                                        <h3 className="text-lg font-black text-slate-800 tracking-tight">Health Calendar</h3>
+                                        <h3 className="text-lg font-black text-slate-800 tracking-tight">Health Calendar <span className="text-sm text-slate-400 font-bold ml-2">{monthName} {today.getFullYear()}</span></h3>
                                         <ChevronRight size={18} className="text-slate-300" />
                                     </div>
                                     <div className="grid grid-cols-7 gap-y-6 text-center">
-                                        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-                                          <span key={d} className="text-[10px] font-black text-slate-300 uppercase">{d}</span>
+                                        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, index) => (
+                                            <span key={`day-${index}`} className="text-[10px] font-black text-slate-300 uppercase">{d}</span>
                                         ))}
-                                        {[...Array(30)].map((_, i) => (
-                                          <div key={i} className={`text-xs font-black py-2.5 rounded-2xl transition-all cursor-pointer flex items-center justify-center ${i === 14 ? 'bg-sky-600 text-white shadow-xl shadow-sky-100 scale-110' : 'text-slate-500 hover:bg-slate-50'}`}>
-                                            {i + 1}
-                                          </div>
+                                        {[...Array(firstDayOfMonth)].map((_, i) => (
+                                            <div key={`empty-${i}`} className="py-2.5"></div>
+                                        ))}
+                                        {[...Array(daysInMonth)].map((_, i) => (
+                                            <div key={`date-${i}`} className={`text-xs font-black py-2.5 rounded-2xl transition-all cursor-pointer flex items-center justify-center ${i + 1 === currentDay ? 'bg-sky-600 text-white shadow-xl shadow-sky-100 scale-110' : 'text-slate-500 hover:bg-slate-50'}`}>
+                                                {i + 1}
+                                            </div>
                                         ))}
                                     </div>
                                 </div>
@@ -369,7 +375,7 @@ export default function AdminDashboard() {
                                     <MoreVertical size={20} />
                                 </button>
                             </div>
-                            
+
                             <div className="overflow-x-auto">
                                 {activeTab === "Users" && (
                                     <table className="w-full text-left">
@@ -380,10 +386,9 @@ export default function AdminDashboard() {
                                                     <td className="px-8 py-5 text-sm font-bold text-slate-400">{i + 1}</td>
                                                     <td className="px-4 py-5 font-bold text-slate-800">{u.name}</td>
                                                     <td className="px-4 py-5">
-                                                        <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
-                                                            u.role === 'admin' ? 'bg-purple-50 text-purple-600' : 
-                                                            u.role === 'doctor' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'
-                                                        }`}>
+                                                        <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${u.role === 'admin' ? 'bg-purple-50 text-purple-600' :
+                                                                u.role === 'doctor' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'
+                                                            }`}>
                                                             {u.role}
                                                         </span>
                                                     </td>
@@ -434,9 +439,8 @@ export default function AdminDashboard() {
                                                     <td className="px-4 py-5 font-bold text-slate-800">{m.name}</td>
                                                     <td className="px-4 py-5 font-bold text-slate-600">{m.quantity} Units</td>
                                                     <td className="px-4 py-5">
-                                                        <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
-                                                            m.quantity < 10 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'
-                                                        }`}>
+                                                        <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${m.quantity < 10 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'
+                                                            }`}>
                                                             {m.quantity < 10 ? 'Low Stock' : 'In Stock'}
                                                         </span>
                                                     </td>
@@ -463,9 +467,8 @@ export default function AdminDashboard() {
                                                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{d.location}</div>
                                                     </td>
                                                     <td className="px-4 py-5">
-                                                        <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
-                                                            d.isVerified ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600 shadow-sm shadow-amber-100'
-                                                        }`}>
+                                                        <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${d.isVerified ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600 shadow-sm shadow-amber-100'
+                                                            }`}>
                                                             {d.isVerified ? 'Verified' : 'Pending Review'}
                                                         </span>
                                                     </td>

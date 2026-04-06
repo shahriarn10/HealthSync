@@ -195,7 +195,7 @@ export default function PharmacyPage() {
                             <input type="number" name="quantity" placeholder="100" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} className="input-field" required />
                         </div>
                         <div className="md:col-span-1">
-                            <label className="block text-xs font-semibold text-slate-600 mb-1">Price ($)</label>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1">Price (৳)</label>
                             <input type="number" step="0.01" name="price" placeholder="15.50" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="input-field" required />
                         </div>
                         <div className="md:col-span-1">
@@ -232,8 +232,8 @@ export default function PharmacyPage() {
                             
                             <div className="mt-auto flex items-end justify-between">
                                 <div>
-                                    <span className="text-xs text-slate-400 block line-through">$ {(m.price * 1.2).toFixed(2)}</span>
-                                    <span className="text-xl font-black text-emerald-600">${m.price.toFixed(2)}</span>
+                                    <span className="text-xs text-slate-400 block line-through">৳ {(m.price * 1.2).toFixed(2)}</span>
+                                    <span className="text-xl font-black text-emerald-600">৳{m.price.toFixed(2)}</span>
                                 </div>
                                 {!isPharmacist && (
                                     <button onClick={() => addToCart(m)} className="bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors shadow-sm flex items-center gap-2">
@@ -256,7 +256,7 @@ export default function PharmacyPage() {
                                     <span className="text-slate-400 text-sm">ID: {order._id.substring(18)}</span>
                                 </div>
                                 <p className="text-sm font-medium text-slate-800 mb-1">Customer: {order.user.name} ({order.user.email})</p>
-                                <p className="text-sm font-semibold text-slate-600">Total: ${order.totalPrice.toFixed(2)}</p>
+                                <p className="text-sm font-semibold text-slate-600">Total: ৳{order.totalPrice.toFixed(2)}</p>
                                 
                                 <div className="mt-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
                                     <p className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">Items Purchased</p>
@@ -264,7 +264,7 @@ export default function PharmacyPage() {
                                         {order.items.map(item => (
                                             <li key={item._id} className="flex justify-between">
                                                 <span>{item.quantity}x {item.name}</span>
-                                                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                                <span>৳{(item.price * item.quantity).toFixed(2)}</span>
                                             </li>
                                         ))}
                                     </ul>
@@ -322,7 +322,7 @@ export default function PharmacyPage() {
                             <div className="flex-1 overflow-y-auto p-5 pb-32">
                                 <div className="bg-slate-50 p-4 rounded-xl mb-6 text-sm border border-slate-200">
                                     <p className="font-semibold text-slate-700 mb-2">Order Summary</p>
-                                    <div className="flex justify-between font-bold text-lg"><span className="text-emerald-600">Total to Pay:</span> <span>${cartTotal.toFixed(2)}</span></div>
+                                    <div className="flex justify-between font-bold text-lg"><span className="text-emerald-600">Total to Pay:</span> <span>৳{cartTotal.toFixed(2)}</span></div>
                                 </div>
                                 
                                 <h3 className="font-bold text-lg mb-4 text-slate-800">Checkout Payment Details</h3>
@@ -349,7 +349,7 @@ export default function PharmacyPage() {
                                         <input type="text" placeholder="e.g. 9JXX2A5R" required className="input-field bg-white font-mono uppercase" value={checkoutForm.transactionId} onChange={(e) => setCheckoutForm({...checkoutForm, transactionId: e.target.value.toUpperCase()})} />
                                     </div>
                                     <button type="submit" className="btn-primary w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-200 mt-6 h-12 text-lg">
-                                        Confirm & Pay ${cartTotal.toFixed(2)}
+                                        Confirm & Pay ৳{cartTotal.toFixed(2)}
                                     </button>
                                     <button type="button" onClick={() => setIsCheckingOut(false)} className="w-full text-slate-500 font-medium py-3 hover:text-slate-800 text-sm mt-2">
                                         Back to Cart
@@ -366,7 +366,7 @@ export default function PharmacyPage() {
                                             </div>
                                             <div className="flex-1 min-w-0 pr-8">
                                                 <h4 className="font-bold text-slate-800 truncate text-sm">{item.name}</h4>
-                                                <p className="text-emerald-600 font-bold">${item.price.toFixed(2)}</p>
+                                                <p className="text-emerald-600 font-bold">৳{item.price.toFixed(2)}</p>
                                                 
                                                 <div className="flex items-center gap-3 mt-2 h-8">
                                                     <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white h-full">
@@ -383,7 +383,7 @@ export default function PharmacyPage() {
                                 <div className="p-5 border-t border-slate-100 bg-slate-50 mt-auto">
                                     <div className="flex justify-between items-center mb-4">
                                         <span className="text-slate-500 font-medium">Subtotal</span>
-                                        <span className="text-2xl font-black text-slate-800">${cartTotal.toFixed(2)}</span>
+                                        <span className="text-2xl font-black text-slate-800">৳{cartTotal.toFixed(2)}</span>
                                     </div>
                                     <button onClick={() => setIsCheckingOut(true)} className="btn-primary w-full bg-slate-800 hover:bg-slate-900 shadow-lg shadow-slate-300 h-12 text-lg">
                                         Proceed to Checkout
