@@ -68,8 +68,16 @@ export default function AdminDashboard() {
         [data?.users, searchTerm]);
 
     const filteredDonors = useMemo(() =>
-        data?.donors?.filter(d => d.donorName.toLowerCase().includes(searchTerm.toLowerCase()) || d.location.toLowerCase().includes(searchTerm.toLowerCase())) || [],
+        data?.donors?.filter(d => d.donorName.toLowerCase().includes(searchTerm.toLowerCase()) || d.bloodType.toLowerCase().includes(searchTerm.toLowerCase())) || [],
         [data?.donors, searchTerm]);
+
+    const filteredAppointments = useMemo(() =>
+        data?.appointments?.filter(a => a.doctorName.toLowerCase().includes(searchTerm.toLowerCase())) || [],
+        [data?.appointments, searchTerm]);
+
+    const filteredMedicines = useMemo(() =>
+        data?.medicines?.filter(m => m.name.toLowerCase().includes(searchTerm.toLowerCase())) || [],
+        [data?.medicines, searchTerm]);
 
     if (!user || user.role !== "admin") {
         return (
@@ -162,8 +170,8 @@ export default function AdminDashboard() {
         <button
             onClick={() => setActiveTab(label)}
             className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold ${activeTab === label
-                    ? "bg-sky-600 text-white shadow-lg shadow-sky-200"
-                    : "text-slate-400 hover:text-sky-600 hover:bg-sky-50"
+                ? "bg-sky-600 text-white shadow-lg shadow-sky-200"
+                : "text-slate-400 hover:text-sky-600 hover:bg-sky-50"
                 }`}
         >
             <Icon size={20} />
@@ -216,14 +224,18 @@ export default function AdminDashboard() {
                     {/* Header View */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                         <div className="relative w-full md:w-[450px] group">
-                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-sky-500 transition-colors" size={18} />
-                            <input
-                                type="text"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder={`Global search in ${activeTab}...`}
-                                className="w-full pl-14 pr-6 py-4 rounded-3xl bg-white border border-slate-100 shadow-sm outline-none focus:ring-4 focus:ring-sky-500/5 focus:border-sky-500/20 transition-all font-medium text-slate-600"
-                            />
+                            {activeTab !== "Dashboard" && (
+                                <>
+                                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-sky-500 transition-colors" size={18} />
+                                    <input
+                                        type="text"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        placeholder={`Search in ${activeTab}...`}
+                                        className="w-full pl-14 pr-6 py-4 rounded-3xl bg-white border border-slate-100 shadow-sm outline-none focus:ring-4 focus:ring-sky-500/5 focus:border-sky-500/20 transition-all font-medium text-slate-600"
+                                    />
+                                </>
+                            )}
                         </div>
                         <div className="flex items-center gap-4 bg-white p-2 rounded-[2rem] shadow-sm border border-slate-50">
                             <button className="p-3.5 rounded-2xl text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition-all relative">
@@ -387,7 +399,7 @@ export default function AdminDashboard() {
                                                     <td className="px-4 py-5 font-bold text-slate-800">{u.name}</td>
                                                     <td className="px-4 py-5">
                                                         <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${u.role === 'admin' ? 'bg-purple-50 text-purple-600' :
-                                                                u.role === 'doctor' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'
+                                                            u.role === 'doctor' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'
                                                             }`}>
                                                             {u.role}
                                                         </span>
@@ -410,11 +422,11 @@ export default function AdminDashboard() {
                                     <table className="w-full text-left">
                                         <TableHeader cols={["Patient", "Doctor Assigned", "Status"]} />
                                         <tbody className="divide-y divide-slate-50">
-                                            {data.appointments.map((a, i) => (
+                                            {filteredAppointments.map((a, i) => (
                                                 <tr key={`appt-${a._id}`} className="hover:bg-slate-50 transition-colors group">
                                                     <td className="px-8 py-5 text-sm font-bold text-slate-400">{i + 1}</td>
                                                     <td className="px-4 py-5 font-bold text-slate-800">{a.patientName}</td>
-                                                    <td className="px-4 py-5 font-bold text-slate-600">Dr. {a.doctorName}</td>
+                                                    <td className="px-4 py-5 font-bold text-slate-600">{a.doctorName}</td>
                                                     <td className="px-4 py-5">
                                                         <span className="px-4 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-wider">Active</span>
                                                     </td>
@@ -433,7 +445,7 @@ export default function AdminDashboard() {
                                     <table className="w-full text-left">
                                         <TableHeader cols={["Medicine Name", "Current Stock", "Status"]} />
                                         <tbody className="divide-y divide-slate-50">
-                                            {data.medicines.map((m, i) => (
+                                            {filteredMedicines.map((m, i) => (
                                                 <tr key={`medicine-${m._id}`} className="hover:bg-slate-50 transition-colors group">
                                                     <td className="px-8 py-5 text-sm font-bold text-slate-400">{i + 1}</td>
                                                     <td className="px-4 py-5 font-bold text-slate-800">{m.name}</td>
