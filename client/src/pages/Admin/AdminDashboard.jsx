@@ -54,6 +54,9 @@ export default function AdminDashboard() {
             } else if (type === 'verify') {
                 await adminVerifyBloodDonor(user.token, id);
                 showToast("Donor verified successfully");
+            } else if (type === 'approveAdmin') {
+                await import("../../api.js").then(api => api.adminApproveAdmin(user.token, id));
+                showToast("Admin successfully approved");
             }
             load(false);
         } catch (err) {
@@ -187,11 +190,11 @@ export default function AdminDashboard() {
     const monthName = today.toLocaleString('default', { month: 'long' });
 
     return (
-        <div className="relative min-h-screen bg-[#F8FAFC]/50 p-4 lg:p-8">
+        <div className="relative min-h-full bg-[#F8FAFC]/50 p-0">
             {toast && <Toast />}
             {modal.show && <ConfirmModal />}
 
-            <div className="flex flex-col lg:flex-row gap-8 max-w-[1600px] mx-auto animate-in fade-in duration-700">
+            <div className="flex flex-col lg:flex-row gap-8 w-full animate-in fade-in duration-700">
 
                 {/* Sidebar Navigation */}
                 <aside className="w-full lg:w-72 flex flex-col gap-8 shrink-0">
@@ -219,24 +222,22 @@ export default function AdminDashboard() {
                 </aside>
 
                 {/* Content Area */}
-                <main className="flex-grow flex flex-col gap-10 min-w-0">
+                <main className="flex-grow flex flex-col gap-2 min-w-0">
 
                     {/* Header View */}
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                        <div className="relative w-full md:w-[450px] group">
-                            {activeTab !== "Dashboard" && (
-                                <>
-                                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-sky-500 transition-colors" size={18} />
-                                    <input
-                                        type="text"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        placeholder={`Search in ${activeTab}...`}
-                                        className="w-full pl-14 pr-6 py-4 rounded-3xl bg-white border border-slate-100 shadow-sm outline-none focus:ring-4 focus:ring-sky-500/5 focus:border-sky-500/20 transition-all font-medium text-slate-600"
-                                    />
-                                </>
-                            )}
-                        </div>
+                    <div className={`flex flex-col md:flex-row ${activeTab === 'Dashboard' ? 'justify-end' : 'justify-between'} items-center gap-6 mb-4`}>
+                        {activeTab !== "Dashboard" && (
+                            <div className="relative w-full md:w-[450px] group">
+                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-sky-500 transition-colors" size={18} />
+                                <input
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder={`Search in ${activeTab}...`}
+                                    className="w-full pl-14 pr-6 py-4 rounded-3xl bg-white border border-slate-100 shadow-sm outline-none focus:ring-4 focus:ring-sky-500/5 focus:border-sky-500/20 transition-all font-medium text-slate-600"
+                                />
+                            </div>
+                        )}
                         <div className="flex items-center gap-4 bg-white p-2 rounded-[2rem] shadow-sm border border-slate-50">
                             <button className="p-3.5 rounded-2xl text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition-all relative">
                                 <Bell size={20} />
@@ -308,7 +309,7 @@ export default function AdminDashboard() {
                                                                 <Calendar size={10} /> Appointment
                                                             </div>
                                                         </td>
-                                                        <td className="px-4 py-5 text-sm font-bold text-slate-500">Dr. {a.doctorName}</td>
+                                                        <td className="px-4 py-5 text-sm font-bold text-slate-500">{a.doctorName}</td>
                                                         <td className="px-4 py-5">
                                                             <span className="px-3 py-1 rounded-lg bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-wider">Pending</span>
                                                         </td>
@@ -396,7 +397,12 @@ export default function AdminDashboard() {
                                             {filteredUsers.map((u, i) => (
                                                 <tr key={`user-${u._id}`} className="hover:bg-slate-50/80 transition-colors group">
                                                     <td className="px-8 py-5 text-sm font-bold text-slate-400">{i + 1}</td>
-                                                    <td className="px-4 py-5 font-bold text-slate-800">{u.name}</td>
+                                                    <td className="px-4 py-5 font-bold text-slate-800">
+                                                        {u.name}
+                                                        {u.role === 'admin' && !u.isApproved && (
+                                                            <span className="ml-2 px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 text-[10px] uppercase font-black tracking-wider">Pending</span>
+                                                        )}
+                                                    </td>
                                                     <td className="px-4 py-5">
                                                         <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${u.role === 'admin' ? 'bg-purple-50 text-purple-600' :
                                                             u.role === 'doctor' ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-600'
@@ -406,11 +412,18 @@ export default function AdminDashboard() {
                                                     </td>
                                                     <td className="px-4 py-5 text-sm font-bold text-slate-500">{u.email}</td>
                                                     <td className="px-8 py-5 text-right">
-                                                        {u.role !== "admin" && (
-                                                            <button onClick={() => setModal({ show: true, type: 'deleteUser', id: u._id, message: `Permanently remove ${u.name} from the system?` })} className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all">
-                                                                <Trash2 size={18} />
-                                                            </button>
-                                                        )}
+                                                        <div className="flex justify-end gap-2">
+                                                            {u.role === 'admin' && !u.isApproved && (
+                                                                <button onClick={() => setModal({ show: true, type: 'approveAdmin', id: u._id, message: `Approve ${u.name} for Master Admin access?` })} className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all font-bold text-xs" title="Approve Admin">
+                                                                    Approve
+                                                                </button>
+                                                            )}
+                                                            {(u.role !== "admin" || !u.isApproved) && (
+                                                                <button onClick={() => setModal({ show: true, type: 'deleteUser', id: u._id, message: `Permanently remove ${u.name} from the system?` })} className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all">
+                                                                    <Trash2 size={18} />
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))}

@@ -7,7 +7,7 @@ export const getDonations = async (req, res) => {
             filter.isVerified = req.query.isVerified === 'true';
         }
         
-        const donors = await BloodDonation.find(filter).sort({ createdAt: -1 });
+        const donors = await BloodDonation.find(filter).sort({ createdAt: -1 }).lean();
         res.json(donors);
     } catch (err) {
         res.status(500).json({ error: err.message });

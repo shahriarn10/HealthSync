@@ -21,4 +21,7 @@ const pharmacyOrderSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+pharmacyOrderSchema.index({ user: 1 });
+pharmacyOrderSchema.index({ createdAt: -1 });
+
 export default mongoose.model("PharmacyOrder", pharmacyOrderSchema);

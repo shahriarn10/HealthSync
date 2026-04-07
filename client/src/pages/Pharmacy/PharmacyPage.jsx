@@ -12,15 +12,26 @@ export default function PharmacyPage() {
     const [activeTab, setActiveTab] = useState("inventory"); // inventory | orders (for pharmacist)
     
     // User Cart States
-    const [cart, setCart] = useState([]);
+    const [cart, setCart] = useState(() => {
+        const saved = localStorage.getItem(`cart_${user?._id}`);
+        return saved ? JSON.parse(saved) : [];
+    });
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [editModal, setEditModal] = useState({ show: false, medicine: null });
+    
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem(`cart_${user._id}`, JSON.stringify(cart));
+        }
+    }, [cart, user]);
     
     // Checkout States
     const [checkoutForm, setCheckoutForm] = useState({ paymentMethod: "bKash", senderNumber: "", transactionId: "" });
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [orderSuccess, setOrderSuccess] = useState(false);
 
-    // Add Medicine State
+    // Add/Edit Medicine State
     const [form, setForm] = useState({ name: "", image: "", quantity: "", price: "" });
 
     const loadMeds = async () => {
@@ -74,6 +85,24 @@ export default function PharmacyPage() {
             await updatePharmacyOrderStatus(user.token, orderId, "Delivered");
             loadOrders();
         } catch (e) { alert("Failed to mark as delivered") }
+    };
+
+    const handleEditImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => setEditModal({ ...editModal, medicine: { ...editModal.medicine, image: reader.result } });
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await import("../../api.js").then(api => api.updateMedicine(user.token, editModal.medicine._id, editModal.medicine));
+            setEditModal({ show: false, medicine: null });
+            loadMeds();
+        } catch (e) { alert("Failed to update medicine"); }
     };
 
     // -------- Customer Actions --------
@@ -145,10 +174,21 @@ export default function PharmacyPage() {
             </div>
 
             {/* Role Header */}
-            <div className="flex justify-between items-end mb-8 border-b border-slate-200 pb-4">
-                <div>
-                    <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Trending products for you!</h2>
-                    <p className="text-slate-500">Explore our reliable catalog</p>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-slate-200 pb-4 gap-4">
+                <div className="flex-1 w-full flex flex-col md:flex-row items-center gap-6">
+                    <div>
+                        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Trending products for you!</h2>
+                        <p className="text-slate-500">Explore our reliable catalog</p>
+                    </div>
+                    <div className="relative w-full max-w-sm group">
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search medicines..."
+                            className="w-full pl-4 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none focus:border-emerald-500 transition-all font-medium text-slate-600"
+                        />
+                    </div>
                 </div>
                 
                 {isPharmacist ? (
@@ -208,14 +248,19 @@ export default function PharmacyPage() {
             {/* List / Orders Content */}
             {activeTab === "inventory" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {meds.map(m => (
+                    {meds.filter(m => m.name.toLowerCase().includes(searchTerm.toLowerCase())).map(m => (
                         <div key={m._id} className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 flex flex-col group">
                             {/* Image Wrapper */}
                             <div className="w-full aspect-[4/3] bg-slate-50 rounded-xl overflow-hidden mb-4 relative flex items-center justify-center p-4">
                                 {isPharmacist && (
-                                    <button onClick={() => handleDelete(m._id)} className="absolute top-2 right-2 bg-white/90 text-rose-500 p-2 rounded-full shadow-sm hover:bg-rose-50 hover:scale-110 transition-transform z-10">
-                                        <Trash2 size={16} />
-                                    </button>
+                                    <div className="absolute top-2 right-2 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={() => setEditModal({ show: true, medicine: m })} className="bg-white text-sky-500 p-2 rounded-full shadow-md hover:bg-sky-50 hover:scale-110 transition-transform">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                        </button>
+                                        <button onClick={() => handleDelete(m._id)} className="bg-white text-rose-500 p-2 rounded-full shadow-md hover:bg-rose-50 hover:scale-110 transition-transform">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 )}
                                 {m.image ? (
                                     <img src={m.image} alt={m.name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" />
@@ -391,6 +436,46 @@ export default function PharmacyPage() {
                                 </div>
                             </>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Modal */}
+            {editModal.show && editModal.medicine && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setEditModal({ show: false, medicine: null })}></div>
+                    <div className="relative bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl">
+                        <button onClick={() => setEditModal({ show: false, medicine: null })} className="absolute top-6 right-6 text-slate-400 hover:bg-slate-100 p-1.5 rounded-full"><X size={20}/></button>
+                        <h3 className="text-2xl font-bold text-slate-800 tracking-tight mb-6 flex items-center gap-2">Edit Medicine</h3>
+                        
+                        <form onSubmit={handleEditSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 mb-1">Image Update (Auto Base64)</label>
+                                <label className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-slate-100 text-sm overflow-hidden text-slate-500">
+                                    <ImagePlus size={18} className="text-emerald-500 flex-shrink-0" />
+                                    <span className="truncate">Change Image</span>
+                                    <input type="file" accept="image/*" onChange={handleEditImageChange} className="hidden" />
+                                </label>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 mb-1">Medicine Name</label>
+                                <input value={editModal.medicine.name} onChange={(e) => setEditModal({...editModal, medicine: {...editModal.medicine, name: e.target.value}})} className="input-field" required />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-600 mb-1">Stock Quantity</label>
+                                    <input type="number" value={editModal.medicine.quantity} onChange={(e) => setEditModal({...editModal, medicine: {...editModal.medicine, quantity: e.target.value}})} className="input-field" required />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-600 mb-1">Price (৳)</label>
+                                    <input type="number" step="0.01" value={editModal.medicine.price} onChange={(e) => setEditModal({...editModal, medicine: {...editModal.medicine, price: e.target.value}})} className="input-field" required />
+                                </div>
+                            </div>
+                            <div className="flex gap-3 pt-4">
+                                <button type="button" onClick={() => setEditModal({ show: false, medicine: null })} className="flex-1 btn bg-slate-100 text-slate-600 font-bold py-3 hover:bg-slate-200 rounded-xl transition-all">Cancel</button>
+                                <button type="submit" className="flex-1 btn-primary bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl transition-all h-auto">Save Changes</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

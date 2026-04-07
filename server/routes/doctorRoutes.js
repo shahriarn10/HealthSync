@@ -7,7 +7,8 @@ import {
     updateAppointmentStatus,
     getDoctors,
     addDoctorProfile,
-    deleteDoctorProfile
+    deleteDoctorProfile,
+    updateDoctorProfile
 } from "../controllers/doctorController.js";
 
 const router = express.Router();
@@ -15,6 +16,7 @@ const router = express.Router();
 // Doctor Profiles endpoints
 router.get("/profiles", protect, getDoctors);
 router.post("/profiles", protect, addDoctorProfile);
+router.put("/profiles/:id", protect, updateDoctorProfile);
 router.delete("/profiles/:id", protect, deleteDoctorProfile);
 
 // Appointment endpoints

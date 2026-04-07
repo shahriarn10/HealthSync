@@ -11,6 +11,8 @@ export default function DoctorPage() {
     // Data States
     const [doctors, setDoctors] = useState([]);
     const [appointments, setAppointments] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [editModal, setEditModal] = useState({ show: false, doc: null });
     
     // Admin/Doc Forms
     const [docForm, setDocForm] = useState({ name: "", specialization: "", image: "", availableTimes: [] });
@@ -76,6 +78,33 @@ export default function DoctorPage() {
         } catch (e) { alert("Failed to update status") }
     };
 
+    // -------------- Edit Logic --------------
+    const handleEditImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => setEditModal({ ...editModal, doc: { ...editModal.doc, image: reader.result } });
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const toggleEditTimeSelect = (time) => {
+        const times = editModal.doc.availableTimes.includes(time)
+            ? editModal.doc.availableTimes.filter(t => t !== time)
+            : [...editModal.doc.availableTimes, time];
+        setEditModal({ ...editModal, doc: { ...editModal.doc, availableTimes: times } });
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        if(editModal.doc.availableTimes.length === 0) return alert("Please select at least one available appointment time slot.");
+        try {
+            await import("../../api.js").then(api => api.updateDoctorProfile(user.token, editModal.doc._id, editModal.doc));
+            setEditModal({ show: false, doc: null });
+            loadData();
+        } catch (err) { alert("Failed to update doctor profile"); }
+    };
+
     // -------------- Patient specific methods --------------
     const handleOpenBooking = (doc) => {
         setSelectedDoctor(doc);
@@ -119,10 +148,23 @@ export default function DoctorPage() {
             </div>
 
             {/* Role Header & Nav */}
-            <div className="flex justify-between items-end mb-8 border-b border-slate-200 pb-4">
-                <div>
-                    <h2 className="text-3xl font-bold text-slate-800 tracking-tight">{isAdminOrDoc ? "Management Dashboard" : "Available Doctors"}</h2>
-                    <p className="text-slate-500">{isAdminOrDoc ? "Control doctor registries and patient requests" : "Select a specialist and request an appointment time"}</p>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-slate-200 pb-4 gap-4">
+                <div className="flex-1 w-full flex flex-col md:flex-row items-center gap-6">
+                    <div>
+                        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">{isAdminOrDoc ? "Management Dashboard" : "Available Doctors"}</h2>
+                        <p className="text-slate-500">{isAdminOrDoc ? "Control doctor registries and patient requests" : "Select a specialist and request an appointment time"}</p>
+                    </div>
+                    {(activeTab === "profiles" || activeTab === "directory") && (
+                        <div className="relative w-full max-w-sm group">
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search by name or field..."
+                                className="w-full pl-4 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none focus:border-sky-500 transition-all font-medium text-slate-600"
+                            />
+                        </div>
+                    )}
                 </div>
                 
                 <div className="flex gap-2 bg-slate-100 p-1 rounded-lg">
@@ -242,13 +284,18 @@ export default function DoctorPage() {
             {/* ----------------- DIRECTORY DOCTOR PROFILES (Shared between all but used primarily by Patients) ----------------- */}
             {(activeTab === "profiles" || activeTab === "directory") && (
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                 {doctors.map(doc => (
+                 {doctors.filter(d => d.name.toLowerCase().includes(searchTerm.toLowerCase()) || d.specialization.toLowerCase().includes(searchTerm.toLowerCase())).map(doc => (
                      <div key={doc._id} className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden">
                          
                          {isAdminOrDoc && (
-                             <button onClick={() => handleDeleteDoctor(doc._id)} className="absolute top-4 right-4 bg-white/90 text-rose-500 p-2 rounded-full shadow-md hover:bg-rose-50 hover:scale-110 transition-transform z-10 opacity-0 group-hover:opacity-100">
-                                 <Trash2 size={16} />
-                             </button>
+                             <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                 <button onClick={() => setEditModal({ show: true, doc })} className="bg-white p-2 rounded-full shadow-md text-sky-500 hover:bg-sky-50 hover:scale-110 transition-transform">
+                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                 </button>
+                                 <button onClick={() => handleDeleteDoctor(doc._id)} className="bg-white text-rose-500 p-2 rounded-full shadow-md hover:bg-rose-50 hover:scale-110 transition-transform">
+                                     <Trash2 size={16} />
+                                 </button>
+                             </div>
                          )}
 
                          <div className="flex gap-4 items-center border-b border-slate-100 pb-5 mb-5">
@@ -359,6 +406,55 @@ export default function DoctorPage() {
                             <button type="submit" disabled={!bookingForm.time} className="btn-primary w-full bg-sky-600 hover:bg-sky-700 h-12 text-lg shadow-lg shadow-sky-200 mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
                                 Request Appointment
                             </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Modal */}
+            {editModal.show && editModal.doc && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setEditModal({ show: false, doc: null })}></div>
+                    <div className="relative bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl">
+                        <button onClick={() => setEditModal({ show: false, doc: null })} className="absolute top-6 right-6 text-slate-400 hover:bg-slate-100 p-1.5 rounded-full"><X size={20}/></button>
+                        <h3 className="text-2xl font-bold text-slate-800 tracking-tight mb-6 flex items-center gap-2">Edit Doctor Profile</h3>
+                        
+                        <form onSubmit={handleEditSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 mb-1">Image Update (Auto Base64)</label>
+                                <label className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-slate-100 text-sm overflow-hidden text-slate-500">
+                                    <ImagePlus size={18} className="text-sky-500 flex-shrink-0" />
+                                    <span className="truncate">Change Image</span>
+                                    <input type="file" accept="image/*" onChange={handleEditImageChange} className="hidden" />
+                                </label>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 mb-1">Doctor Full Name</label>
+                                <input value={editModal.doc.name} onChange={(e) => setEditModal({...editModal, doc: {...editModal.doc, name: e.target.value}})} className="input-field" required />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 mb-1">Specialization / Field</label>
+                                <input value={editModal.doc.specialization} onChange={(e) => setEditModal({...editModal, doc: {...editModal.doc, specialization: e.target.value}})} className="input-field" required />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 mb-2">Available Scheduling Slots</label>
+                                <div className="flex flex-wrap gap-2 max-h-[100px] overflow-y-auto">
+                                    {shiftTimes.map(time => (
+                                        <button 
+                                            type="button" 
+                                            key={time} 
+                                            onClick={() => toggleEditTimeSelect(time)}
+                                            className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${editModal.doc.availableTimes.includes(time) ? 'bg-sky-500 text-white border-sky-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-sky-300'}`}
+                                        >
+                                            {time}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex gap-3 pt-4">
+                                <button type="button" onClick={() => setEditModal({ show: false, doc: null })} className="flex-1 btn bg-slate-100 text-slate-600 font-bold py-3 hover:bg-slate-200 rounded-xl transition-all">Cancel</button>
+                                <button type="submit" className="flex-1 btn-primary bg-sky-600 hover:bg-sky-700 py-3 rounded-xl transition-all h-auto">Save Changes</button>
+                            </div>
                         </form>
                     </div>
                 </div>

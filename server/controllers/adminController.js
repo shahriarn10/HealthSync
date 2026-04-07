@@ -6,10 +6,10 @@ import BloodDonation from "../models/BloodDonation.js";
 /** Overview: summary stats + all data */
 export const getOverview = async (_req, res) => {
     try {
-        const users = await User.find({}, "-password");
-        const appointments = await Appointment.find();
-        const medicines = await Medicine.find();
-        const donors = await BloodDonation.find();
+        const users = await User.find({}, "-password").lean();
+        const appointments = await Appointment.find().lean();
+        const medicines = await Medicine.find().lean();
+        const donors = await BloodDonation.find().lean();
 
         res.json({
             stats: {
@@ -61,6 +61,20 @@ export const verifyBloodDonor = async (req, res) => {
             { new: true }
         );
         res.json({ message: "Blood donor verified", donor });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+/** Approve admin registration */
+export const approveAdmin = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user || user.role !== "admin") return res.status(400).json({ message: "Invalid admin request." });
+        
+        user.isApproved = true;
+        await user.save();
+        res.json({ message: "Admin approved successfully", user });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

@@ -12,7 +12,8 @@ export const register = async (req, res) => {
         if (exists) return res.status(400).json({ message: "Email already exists" });
 
         const hashed = await bcrypt.hash(password, 10);
-        const user = await User.create({ name, email, password: hashed, role });
+        const isApproved = role === "admin" ? false : true;
+        const user = await User.create({ name, email, password: hashed, role, isApproved });
         res.status(201).json({
             _id: user.id,
             name: user.name,
@@ -30,6 +31,10 @@ export const login = async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json({ message: "Invalid credentials" });
+        
+        if (user.role === "admin" && !user.isApproved) {
+            return res.status(403).json({ message: "Admin account pending approval. Please contact a Master Admin." });
+        }
 
         const match = await bcrypt.compare(password, user.password);
         if (!match) return res.status(400).json({ message: "Invalid credentials" });

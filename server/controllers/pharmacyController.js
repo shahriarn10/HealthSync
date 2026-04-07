@@ -4,7 +4,7 @@ import PharmacyOrder from "../models/PharmacyOrder.js";
 // Medicine Functions
 export const getMedicines = async (req, res) => {
     try {
-        const meds = await Medicine.find();
+        const meds = await Medicine.find().lean();
         res.json(meds);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -25,6 +25,15 @@ export const deleteMedicine = async (req, res) => {
     try {
         await Medicine.findByIdAndDelete(req.params.id);
         res.json({ message: "Medicine removed" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const updateMedicine = async (req, res) => {
+    try {
+        const med = await Medicine.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(med);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -61,7 +70,7 @@ export const placeOrder = async (req, res) => {
 export const getOrders = async (req, res) => {
     try {
         // Fetch all orders for pharmacist/admin, populated with user info
-        const orders = await PharmacyOrder.find().populate("user", "name email").sort({ createdAt: -1 });
+        const orders = await PharmacyOrder.find().populate("user", "name email").sort({ createdAt: -1 }).lean();
         res.json(orders);
     } catch (err) {
         res.status(500).json({ error: err.message });

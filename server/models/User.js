@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ["user", "doctor", "pharmacist", "donor", "admin"],
             default: "user"
-        }
+        },
+        isApproved: { type: Boolean, default: true }
     },
     { timestamps: true }
 );

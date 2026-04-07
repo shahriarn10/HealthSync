@@ -14,4 +14,7 @@ const bloodSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+bloodSchema.index({ isVerified: 1 });
+bloodSchema.index({ createdAt: -1 });
+
 export default mongoose.model("BloodDonation", bloodSchema);

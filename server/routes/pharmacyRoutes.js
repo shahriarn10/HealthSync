@@ -4,6 +4,7 @@ import {
     getMedicines, 
     addMedicine, 
     deleteMedicine,
+    updateMedicine,
     placeOrder,
     getOrders,
     updateOrderStatus
@@ -14,6 +15,7 @@ const router = express.Router();
 // Medicine routes
 router.get("/", protect, getMedicines);
 router.post("/", protect, addMedicine);
+router.put("/:id", protect, updateMedicine);
 router.delete("/:id", protect, deleteMedicine);
 
 // Order routes

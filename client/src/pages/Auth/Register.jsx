@@ -75,6 +75,9 @@ export default function Register() {
                             <option value="donor">Blood Donor</option>
                             <option value="admin">System Administrator (Admin)</option>
                         </select>
+                        {form.role === "admin" && (
+                            <p className="text-xs text-rose-500 mt-2 font-medium">⚠️ Admin registrations require approval from an existing Master Admin before login is permitted.</p>
+                        )}
                     </div>
                     
                     {error && (

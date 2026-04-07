@@ -4,7 +4,7 @@ import DoctorProfile from "../models/DoctorProfile.js";
 // -------- Doctor Profile Management --------
 export const getDoctors = async (req, res) => {
     try {
-        const doctors = await DoctorProfile.find();
+        const doctors = await DoctorProfile.find().lean();
         res.json(doctors);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -30,6 +30,15 @@ export const deleteDoctorProfile = async (req, res) => {
     }
 };
 
+export const updateDoctorProfile = async (req, res) => {
+    try {
+        const doc = await DoctorProfile.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(doc);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 // -------- Appointment Management --------
 export const getAppointments = async (req, res) => {
     try {
@@ -39,7 +48,7 @@ export const getAppointments = async (req, res) => {
             filter.patientId = req.user._id;
         }
         
-        const data = await Appointment.find(filter).sort({ createdAt: -1 });
+        const data = await Appointment.find(filter).sort({ createdAt: -1 }).lean();
         res.json(data);
     } catch (err) {
         res.status(500).json({ error: err.message });
