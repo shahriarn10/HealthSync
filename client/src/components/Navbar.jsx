@@ -1,5 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Activity, Stethoscope, Pill, Droplet, Shield, LogOut, LogIn, Home } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Navbar() {
     const navigate = useNavigate();
@@ -16,13 +17,20 @@ export default function Navbar() {
         return (
             <Link
                 to={to}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 font-medium ${
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-xl transition-colors duration-200 font-bold text-sm ${
                     isActive 
-                    ? "bg-sky-100 text-sky-700 shadow-sm" 
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    ? "text-sky-700" 
+                    : "text-slate-500 hover:text-slate-900"
                 }`}
             >
-                <Icon size={18} />
+                {isActive && (
+                    <motion.div 
+                        layoutId="nav-active" 
+                        className="absolute inset-0 bg-sky-100/50 rounded-xl -z-10"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                )}
+                <Icon size={18} className={isActive ? "text-sky-600" : "text-slate-400"} />
                 <span>{children}</span>
             </Link>
         );
