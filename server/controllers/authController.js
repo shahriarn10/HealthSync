@@ -14,13 +14,17 @@ export const register = async (req, res) => {
         const hashed = await bcrypt.hash(password, 10);
         const isApproved = role === "admin" ? false : true;
         const user = await User.create({ name, email, password: hashed, role, isApproved });
-        res.status(201).json({
+        const responseData = {
             _id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
-            token: genToken(user.id)
-        });
+        };
+        // Do not return a token if the user is an admin pending approval
+        if (isApproved) {
+            responseData.token = genToken(user.id);
+        }
+        res.status(201).json(responseData);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

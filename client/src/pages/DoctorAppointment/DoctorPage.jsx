@@ -287,11 +287,13 @@ export default function DoctorPage() {
                  {doctors.filter(d => d.name.toLowerCase().includes(searchTerm.toLowerCase()) || d.specialization.toLowerCase().includes(searchTerm.toLowerCase())).map(doc => (
                      <div key={doc._id} className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden">
                          
-                         {isAdminOrDoc && (
+                         {isAdminOrDoc && (user?.role === 'admin' || doc.userId === user?._id) && (
                              <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                 {doc.userId === user?._id && (
                                  <button onClick={() => setEditModal({ show: true, doc })} className="bg-white p-2 rounded-full shadow-md text-sky-500 hover:bg-sky-50 hover:scale-110 transition-transform">
                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                                  </button>
+                                 )}
                                  <button onClick={() => handleDeleteDoctor(doc._id)} className="bg-white text-rose-500 p-2 rounded-full shadow-md hover:bg-rose-50 hover:scale-110 transition-transform">
                                      <Trash2 size={16} />
                                  </button>

@@ -47,7 +47,7 @@ export default function FeatureCards() {
     };
 
     return (
-        <section className="relative z-20 -mt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="explore-services" className="relative z-20 -mt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-32">
             <motion.div 
                 variants={containerVariants}
                 initial="hidden"

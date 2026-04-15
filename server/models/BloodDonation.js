@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const bloodSchema = new mongoose.Schema(
     {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         donorName: { type: String, required: true },
         bloodType: { type: String, required: true },
         location: { type: String, required: true },

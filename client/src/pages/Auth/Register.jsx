@@ -13,6 +13,11 @@ export default function Register() {
         e.preventDefault();
         try {
             const { data } = await register(form);
+            if (form.role === "admin") {
+                alert("Admin account created successfully! Please wait for a Master Admin to approve your account before logging in.");
+                navigate("/login");
+                return;
+            }
             localStorage.setItem("user", JSON.stringify(data));
             navigate("/");
         } catch (err) {
@@ -71,7 +76,6 @@ export default function Register() {
                         >
                             <option value="user">Patient / User</option>
                             <option value="doctor">Doctor</option>
-                            <option value="pharmacist">Pharmacist</option>
                             <option value="donor">Blood Donor</option>
                             <option value="admin">System Administrator (Admin)</option>
                         </select>

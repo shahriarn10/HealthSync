@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getBloodData, addDonor } from "../../api";
-import { Droplet, MapPin, Phone, Search, UserPlus, ImagePlus, ArrowLeft, ArrowRight, Loader2, Calendar } from "lucide-react";
+import { Droplet, MapPin, Phone, Search, UserPlus, ImagePlus, ArrowLeft, ArrowRight, Loader2, Calendar, X } from "lucide-react";
 
 export default function BloodPage() {
     const [donors, setDonors] = useState([]);
@@ -8,6 +8,9 @@ export default function BloodPage() {
     const [showForm, setShowForm] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Edit Modal State
+    const [editModal, setEditModal] = useState({ show: false, donor: null });
     
     const DEFAULT_PHOTO = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
 
@@ -56,6 +59,35 @@ export default function BloodPage() {
         finally { setIsSubmitting(false); }
     };
 
+    const handleDelete = async (id) => {
+        try {
+            await import("../../api.js").then(api => api.deleteDonor(user.token, id));
+            load();
+        } catch (err) { alert("Failed to remove donor"); }
+    };
+
+    const handleEditImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                alert("File size exceeds 5MB limit.");
+                return;
+            }
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = () => setEditModal({ ...editModal, donor: { ...editModal.donor, photo: reader.result } });
+        }
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await import("../../api.js").then(api => api.updateDonor(user.token, editModal.donor._id, editModal.donor));
+            setEditModal({ show: false, donor: null });
+            load();
+        } catch (err) { alert("Failed to update donor profile"); }
+    };
+
     const checkEligibility = (lastDateStr) => {
         if (!lastDateStr) return { isEligible: true, lastDateFmt: "N/A", nextEligible: "Ready" };
         const lastDate = new Date(lastDateStr);
@@ -82,7 +114,7 @@ export default function BloodPage() {
         if (filters.type !== "All" && d.bloodType !== filters.type) return false;
         if (filters.search && !d.location.toLowerCase().includes(filters.search.toLowerCase())) return false;
         const { isEligible } = checkEligibility(d.lastDonationDate);
-        if (filters.status === "Available Donors" && !isEligible) return false;
+        if (filters.status === "Available Donors" && (!isEligible || d.available === false)) return false;
         return true;
     });
 
@@ -226,18 +258,30 @@ export default function BloodPage() {
                                 
                                 {/* Photo Header Area */}
                                 <div className="h-56 w-full relative overflow-hidden bg-slate-100">
+                                    {(user?.role === 'admin' || d.userId === user?._id) && (
+                                        <div className="absolute top-4 right-4 flex flex-col gap-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {d.userId === user?._id && (
+                                            <button onClick={() => setEditModal({ show: true, donor: d })} className="bg-white p-2 rounded-full shadow-md text-sky-500 hover:bg-sky-50 hover:scale-110 transition-transform">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                            </button>
+                                            )}
+                                            <button onClick={() => handleDelete(d._id)} className="bg-white text-rose-500 p-2 rounded-full shadow-md hover:bg-rose-50 hover:scale-110 transition-transform">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                            </button>
+                                        </div>
+                                    )}
                                     <img src={d.photo || DEFAULT_PHOTO} alt={d.donorName} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                                     
                                     {/* Blood Bag Badge */}
-                                    <div className={`absolute top-4 left-4 px-4 py-2 rounded-xl backdrop-blur-md bg-gradient-to-br ${typeColors[d.bloodType] || "from-slate-600 to-slate-800"} text-white font-black shadow-lg flex items-center gap-1.5 ring-2 ring-white/20`}>
+                                    <div className={`absolute top-4 left-4 z-10 px-4 py-2 rounded-xl backdrop-blur-md bg-gradient-to-br ${typeColors[d.bloodType] || "from-slate-600 to-slate-800"} text-white font-black shadow-lg flex items-center gap-1.5 ring-2 ring-white/20`}>
                                         {d.bloodType}
                                     </div>
 
                                     {/* Eligibility Overlay Pill */}
-                                    <div className="absolute bottom-4 right-4 relative">
-                                         <div className={`absolute inset-0 blur-md ${isEligible ? 'bg-emerald-500' : 'bg-slate-600'} opacity-40 rounded-full`}></div>
-                                         <div className={`relative px-4 py-1.5 rounded-full text-xs font-bold shadow-md bg-white border ${isEligible ? 'text-emerald-600 border-emerald-100' : 'text-slate-500 border-slate-200'}`}>
-                                             {isEligible ? 'Available' : 'Resting'}
+                                    <div className="absolute bottom-4 right-4 z-10">
+                                         <div className={`absolute inset-0 blur-md ${isEligible && d.available !== false ? 'bg-emerald-500' : 'bg-slate-600'} opacity-40 rounded-full`}></div>
+                                         <div className={`relative px-4 py-1.5 rounded-full text-xs font-bold shadow-md bg-white border ${isEligible && d.available !== false ? 'text-emerald-600 border-emerald-100' : 'text-slate-500 border-slate-200'}`}>
+                                             {isEligible && d.available !== false ? 'Available' : 'Resting'}
                                          </div>
                                     </div>
                                     
@@ -294,6 +338,65 @@ export default function BloodPage() {
                             </div>
                         );
                     })}
+                </div>
+            )}
+
+            {/* Edit Modal */}
+            {editModal.show && editModal.donor && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setEditModal({ show: false, donor: null })}></div>
+                    <div className="relative bg-white rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl overflow-y-auto max-h-[90vh]">
+                        <button onClick={() => setEditModal({ show: false, donor: null })} className="absolute top-6 right-6 text-slate-400 hover:bg-slate-100 p-1.5 rounded-full"><X size={20}/></button>
+                        <h3 className="text-2xl font-bold text-slate-800 tracking-tight mb-6 flex items-center gap-2">Edit Donor Profile</h3>
+                        
+                        <form onSubmit={handleEditSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 mb-1">Image Update (Auto Base64)</label>
+                                <label className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-slate-100 text-sm overflow-hidden text-slate-500">
+                                    <ImagePlus size={18} className="text-rose-500 flex-shrink-0" />
+                                    <span className="truncate">Change Image</span>
+                                    <input type="file" accept="image/*" onChange={handleEditImageChange} className="hidden" />
+                                </label>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 mb-1">Full Name</label>
+                                <input value={editModal.donor.donorName} onChange={(e) => setEditModal({...editModal, donor: {...editModal.donor, donorName: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-3.5 rounded-xl outline-none" required />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-600 mb-1">Blood Type</label>
+                                    <select value={editModal.donor.bloodType} onChange={(e) => setEditModal({...editModal, donor: {...editModal.donor, bloodType: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-3.5 rounded-xl outline-none appearance-none" required>
+                                        {["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map(v => <option key={v} value={v}>{v}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-600 mb-1">Phone Number</label>
+                                    <input value={editModal.donor.phone} onChange={(e) => setEditModal({...editModal, donor: {...editModal.donor, phone: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-3.5 rounded-xl outline-none" required />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 mb-1">Last Donation Date</label>
+                                <input type="date" value={editModal.donor.lastDonationDate ? new Date(editModal.donor.lastDonationDate).toISOString().split('T')[0] : ''} onChange={(e) => setEditModal({...editModal, donor: {...editModal.donor, lastDonationDate: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-3.5 rounded-xl outline-none" required />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-600 mb-1">Availability Status</label>
+                                    <select value={editModal.donor.available !== false ? "true" : "false"} onChange={(e) => setEditModal({...editModal, donor: {...editModal.donor, available: e.target.value === "true"}})} className="w-full bg-slate-50 border border-slate-200 p-3.5 rounded-xl outline-none appearance-none" required>
+                                        <option value="true">Available to Donate</option>
+                                        <option value="false">Currently Unavailable</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-600 mb-1">Location / City</label>
+                                    <input value={editModal.donor.location} onChange={(e) => setEditModal({...editModal, donor: {...editModal.donor, location: e.target.value}})} className="w-full bg-slate-50 border border-slate-200 p-3.5 rounded-xl outline-none" required />
+                                </div>
+                            </div>
+                            <div className="flex gap-3 pt-4">
+                                <button type="button" onClick={() => setEditModal({ show: false, donor: null })} className="flex-1 btn bg-slate-100 text-slate-600 font-bold py-3 hover:bg-slate-200 rounded-xl transition-all">Cancel</button>
+                                <button type="submit" className="flex-1 btn-primary bg-rose-600 hover:bg-rose-700 py-3 rounded-xl transition-all h-auto">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

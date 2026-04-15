@@ -29,6 +29,7 @@ export const updatePharmacyOrderStatus = (t, id, status) => API.put(`/pharmacy/o
 
 export const getBloodData = (t) => API.get("/blood", { headers: { Authorization: `Bearer ${t}` } });
 export const addDonor = (t, data) => API.post("/blood", data, { headers: { Authorization: `Bearer ${t}` } });
+export const updateDonor = (t, id, data) => API.put(`/blood/${id}`, data, { headers: { Authorization: `Bearer ${t}` } });
 export const deleteDonor = (t, id) => API.delete(`/blood/${id}`, { headers: { Authorization: `Bearer ${t}` } });
 
 // Admin

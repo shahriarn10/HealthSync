@@ -14,6 +14,7 @@ export const getDoctors = async (req, res) => {
 export const addDoctorProfile = async (req, res) => {
     try {
         // Only Admin or Doctor roles can reach here based on routes middleware, or UI hiding
+        req.body.userId = req.user._id;
         const doc = await DoctorProfile.create(req.body);
         res.status(201).json(doc);
     } catch (err) {

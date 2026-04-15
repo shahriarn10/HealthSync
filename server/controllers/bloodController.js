@@ -16,6 +16,7 @@ export const getDonations = async (req, res) => {
 
 export const addDonation = async (req, res) => {
     try {
+        req.body.userId = req.user._id;
         const donor = await BloodDonation.create(req.body);
         res.status(201).json(donor);
     } catch (err) {
@@ -27,6 +28,15 @@ export const deleteDonation = async (req, res) => {
     try {
         await BloodDonation.findByIdAndDelete(req.params.id);
         res.json({ message: "Donation entry removed" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const updateDonation = async (req, res) => {
+    try {
+        const donor = await BloodDonation.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(donor);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

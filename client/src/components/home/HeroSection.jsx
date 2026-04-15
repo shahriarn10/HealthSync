@@ -3,6 +3,7 @@ import { ArrowRight, Activity } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function HeroSection() {
+    const user = JSON.parse(localStorage.getItem("user"));
     return (
         <section className="relative pt-24 pb-32 sm:pt-32 sm:pb-40 lg:pb-48 overflow-hidden rounded-[3rem] mt-8">
             {/* Background Animations */}
@@ -51,19 +52,21 @@ export default function HeroSection() {
                     transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                     className="flex flex-col sm:flex-row justify-center gap-4 mt-8"
                 >
-                    <Link
-                        to="/register"
-                        className="inline-flex justify-center items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-                    >
-                        Get Started
-                        <ArrowRight size={20} />
-                    </Link>
-                    <Link
-                        to="/doctor"
+                    {!user && (
+                        <Link
+                            to="/register"
+                            className="inline-flex justify-center items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                        >
+                            Get Started
+                            <ArrowRight size={20} />
+                        </Link>
+                    )}
+                    <a
+                        href="#explore-services"
                         className="inline-flex justify-center items-center gap-2 px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
                     >
                         Explore Services
-                    </Link>
+                    </a>
                 </motion.div>
             </div>
         </section>

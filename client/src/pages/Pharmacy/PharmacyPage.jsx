@@ -8,7 +8,7 @@ export default function PharmacyPage() {
     
     // Auth & Layout States
     const user = JSON.parse(localStorage.getItem("user"));
-    const isPharmacist = user?.role === "pharmacist" || user?.role === "admin";
+    const isPharmacist = user?.role === "admin";
     const [activeTab, setActiveTab] = useState("inventory"); // inventory | orders (for pharmacist)
     
     // User Cart States
@@ -180,15 +180,17 @@ export default function PharmacyPage() {
                         <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Trending products for you!</h2>
                         <p className="text-slate-500">Explore our reliable catalog</p>
                     </div>
-                    <div className="relative w-full max-w-sm group">
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search medicines..."
-                            className="w-full pl-4 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none focus:border-emerald-500 transition-all font-medium text-slate-600"
-                        />
-                    </div>
+                    {activeTab === "inventory" && (
+                        <div className="relative w-full max-w-sm group">
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search medicines..."
+                                className="w-full pl-4 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none focus:border-emerald-500 transition-all font-medium text-slate-600"
+                            />
+                        </div>
+                    )}
                 </div>
                 
                 {isPharmacist ? (
