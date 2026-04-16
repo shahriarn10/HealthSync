@@ -139,6 +139,7 @@ export default function Login() {
                                 <div>
                                     <div className="flex justify-between items-center mb-1.5 ml-1">
                                         <label className="block text-sm font-semibold text-slate-700">Password</label>
+                                        
                                     </div>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-sky-500 transition-colors">
