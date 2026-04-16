@@ -27,15 +27,7 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    <div>
-                        <h4 className="font-bold text-slate-900 mb-4">Company</h4>
-                        <ul className="space-y-3 text-sm text-slate-500">
-                            <li><a href="#" className="hover:text-sky-600 transition-colors">About Us</a></li>
-                            <li><a href="#" className="hover:text-sky-600 transition-colors">Contact</a></li>
-                            <li><a href="#" className="hover:text-sky-600 transition-colors">Privacy Policy</a></li>
-                            <li><a href="#" className="hover:text-sky-600 transition-colors">Terms of Service</a></li>
-                        </ul>
-                    </div>
+                    
 
                     <div>
                         <h4 className="font-bold text-slate-900 mb-4">Connect</h4>
