@@ -33,7 +33,7 @@ export default function Footer() {
                         <h4 className="font-bold text-slate-900 mb-4">Connect</h4>
                         <div className="flex gap-4 text-slate-400 font-medium text-sm">
                             <a href="#" className="hover:text-sky-500 transition-colors">Twitter</a>
-                            <a href="#" className="hover:text-slate-900 transition-colors">GitHub</a>
+                            <a href="https://github.com/shahriarn10/HealthSync.git" className="hover:text-slate-900 transition-colors">GitHub</a>
                             <a href="#" className="hover:text-sky-700 transition-colors">LinkedIn</a>
                         </div>
                     </div>

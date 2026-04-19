@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../../api";
 import { motion } from "framer-motion";
-import { Mail, Lock, AlertCircle, ArrowRight, Home } from "lucide-react";
+import { AlertCircle, Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
     const [form, setForm] = useState({ email: "", password: "" });
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -27,178 +28,174 @@ export default function Login() {
         }
     };
 
-    // Animation variants
-    const containerVariants = {
+    const fadeInUp = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+    };
+
+    const staggerContainer = {
         hidden: { opacity: 0 },
-        visible: { 
+        visible: {
             opacity: 1,
-            transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+            transition: {
+                staggerChildren: 0.1
+            }
         }
     };
 
-    const itemVariants = {
-        hidden: { y: 20, opacity: 0 },
-        visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 24 } }
-    };
-
     return (
-        <div className="min-h-screen flex text-slate-800 bg-slate-50">
-            {/* Left Panel - Image/Branding (Hidden on mobile) */}
-            <div className="hidden lg:flex w-1/2 relative bg-slate-900 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-sky-600/90 to-slate-900/90 z-10 mix-blend-multiply" />
-                <img 
-                    src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80" 
-                    alt="HealthSync Medical Background" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                />
+        <div className="h-[calc(100vh-4rem)] bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans overflow-hidden animate-in fade-in duration-500">
+            {/* Main App Container - Boxed Layout for perfect display ratio */}
+            <div className="w-full max-w-[1400px] h-full max-h-[800px] min-h-[500px] bg-slate-900 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden relative flex shadow-2xl flex-col lg:flex-row shadow-slate-900/20">
                 
-                {/* Decorative floating elements */}
-                <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-sky-400 rounded-full mix-blend-screen filter blur-[80px] opacity-30 animate-pulse z-10" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-screen filter blur-[100px] opacity-20 z-10" />
+                {/* Background Layer inside container */}
+                <div className="absolute inset-0 z-0">
+                    <img 
+                        src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1920&q=80" 
+                        alt="Background" 
+                        className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-[#0f172a]/85 mix-blend-multiply" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/95 via-[#0f172a]/60 to-[#0f172a]/40" />
+                </div>
 
-                <div className="relative z-20 flex flex-col justify-between p-12 w-full h-full text-white">
-                    <Link to="/" className="flex items-center gap-2 text-2xl font-bold tracking-tight hover:opacity-80 transition-opacity w-fit">
-                        <div className="size-8 rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/30">
-                            <span className="text-white text-lg leading-none">+</span>
-                        </div>
-                        HealthSync
-                    </Link>
+                {/* Left Side - Branding & Text */}
+                <div className="relative z-10 w-full lg:w-[55%] xl:w-[60%] p-8 sm:p-12 lg:p-16 flex flex-col justify-between hidden sm:flex">
+                    <motion.div 
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6 }}
+                    >
+                        <Link to="/" className="flex items-center gap-3 text-2xl font-bold tracking-tight text-white hover:opacity-80 transition-opacity w-fit">
+                            <div className="size-9 rounded-xl bg-white flex items-center justify-center shadow-lg">
+                                <span className="text-slate-900 text-xl leading-none font-black">+</span>
+                            </div>
+                            HealthSync
+                        </Link>
+                    </motion.div>
 
-                    <div className="max-w-md">
+                    <div className="max-w-2xl mt-auto pb-8 lg:pb-12">
                         <motion.h1 
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="text-4xl font-bold mb-6 leading-tight"
+                            transition={{ duration: 0.7, delay: 0.2 }}
+                            className="text-4xl sm:text-5xl lg:text-[56px] font-bold text-white leading-[1.15] mb-6 tracking-tight"
                         >
-                            Your health, perfectly synchronized.
+                            Heal Smarter. Connect Faster.<br/>Manage Anywhere.
                         </motion.h1>
                         <motion.p 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.7, delay: 0.4 }}
+                            className="text-lg text-slate-300 leading-relaxed max-w-xl font-medium"
+                        >
+                            From quick consultations to full medical records, our powerful platform lets you seamlessly control your health journey across all devices.
+                        </motion.p>
+                        
+                        <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ delay: 0.4 }}
-                            className="text-slate-300 text-lg leading-relaxed"
+                            transition={{ duration: 0.7, delay: 0.6 }}
+                            className="flex gap-2.5 mt-10 items-center"
                         >
-                            Access your medical records, book appointments, and manage your health journey all in one secure platform.
-                        </motion.p>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-sm text-slate-400">
-                        <span>© 2026 HealthSync System</span>
-                        <div className="w-1 h-1 rounded-full bg-slate-500" />
-                        <span>Secure & Encrypted</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Right Panel - Login Form */}
-            <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 sm:p-12 relative overflow-hidden bg-slate-50/50">
-                {/* Mobile back to home */}
-                <div className="absolute top-6 left-6 lg:hidden">
-                    <Link to="/" className="p-2 rounded-full bg-white shadow-sm border border-slate-200 text-slate-500 hover:text-sky-600 transition-colors flex items-center justify-center">
-                        <Home size={20} />
-                    </Link>
-                </div>
-
-                <div className="w-full max-w-md">
-                    <motion.div 
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="bg-white/80 backdrop-blur-xl border border-white/40 shadow-2xl rounded-3xl p-8 sm:p-10 relative z-10"
-                    >
-                        <motion.div variants={itemVariants} className="text-center mb-8">
-                            <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                                Welcome back
-                            </h2>
-                            <p className="text-sm text-slate-500 mt-3 font-medium">
-                                Enter your credentials to access your account
-                            </p>
+                            <div className="w-8 h-1.5 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]"></div>
+                            <div className="w-1.5 h-1.5 bg-white/30 rounded-full hover:bg-white/50 cursor-pointer transition-colors"></div>
+                            <div className="w-1.5 h-1.5 bg-white/30 rounded-full hover:bg-white/50 cursor-pointer transition-colors"></div>
                         </motion.div>
-                        
-                        <form onSubmit={handleSubmit} className="space-y-5">
-                            <motion.div variants={itemVariants} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">Email Address</label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-sky-500 transition-colors">
-                                            <Mail size={18} />
-                                        </div>
-                                        <input 
-                                            name="email" 
-                                            type="email"
-                                            placeholder="you@example.com" 
-                                            onChange={handleChange}
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all duration-300 shadow-sm"
-                                            required
-                                            disabled={isLoading}
-                                        />
-                                    </div>
-                                </div>
+                    </div>
+                </div>
+
+                {/* Right Side - Form Card */}
+                <div className="relative z-20 w-full lg:w-[45%] xl:w-[40%] flex items-center justify-center p-4 lg:p-10 h-full">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ duration: 0.6, type: "spring", stiffness: 200, damping: 20 }}
+                        className="w-full max-w-[440px] bg-white rounded-[2rem] p-8 sm:p-10 shadow-2xl flex flex-col mx-auto max-h-full overflow-y-auto custom-scrollbar"
+                    >
+                        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex-1 flex flex-col justify-center">
+                            <motion.div variants={fadeInUp} className="mb-8">
+                                <h2 className="text-[28px] font-bold text-slate-900 mb-2 tracking-tight">Welcome Back!</h2>
+                                <p className="text-[15px] text-slate-500 font-medium">Log in to start managing your health journey.</p>
+                            </motion.div>
+                            
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                                <motion.div variants={fadeInUp}>
+                                    <label className="block text-[11px] font-bold text-slate-900/80 mb-2 uppercase tracking-wide">Email</label>
+                                    <input 
+                                        name="email" 
+                                        type="email"
+                                        placeholder="you@example.com" 
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 transition-all text-[15px] bg-white placeholder:text-slate-400 font-medium"
+                                        required
+                                        disabled={isLoading}
+                                    />
+                                </motion.div>
                                 
-                                <div>
-                                    <div className="flex justify-between items-center mb-1.5 ml-1">
-                                        <label className="block text-sm font-semibold text-slate-700">Password</label>
-                                        
-                                    </div>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-sky-500 transition-colors">
-                                            <Lock size={18} />
-                                        </div>
+                                <motion.div variants={fadeInUp}>
+                                    <label className="block text-[11px] font-bold text-slate-900/80 mb-2 uppercase tracking-wide">Password</label>
+                                    <div className="relative">
                                         <input 
                                             name="password" 
-                                            type="password" 
+                                            type={showPassword ? "text" : "password"}
                                             placeholder="••••••••" 
                                             onChange={handleChange}
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200/80 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all duration-300 shadow-sm"
+                                            className="w-full pl-4 pr-12 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 transition-all text-[15px] bg-white placeholder:text-slate-400 font-medium"
                                             required
                                             disabled={isLoading}
                                         />
+                                        <button 
+                                            type="button" 
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                        >
+                                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                        </button>
                                     </div>
-                                </div>
-                            </motion.div>
-                            
-                            {error && (
-                                <motion.div 
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: "auto" }}
-                                    className="p-3.5 rounded-xl bg-red-50/80 border border-red-100 text-red-600 text-sm font-medium flex items-start gap-2.5 shadow-sm"
-                                >
-                                    <AlertCircle size={18} className="shrink-0 mt-0.5" />
-                                    <span>{error}</span>
                                 </motion.div>
-                            )}
-                            
-                            <motion.div variants={itemVariants} className="pt-2">
-                                <button 
-                                    type="submit" 
-                                    disabled={isLoading}
-                                    className="w-full py-3.5 bg-slate-900 hover:bg-sky-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-sky-500/25 transition-all duration-300 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
-                                >
-                                    {isLoading ? (
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    ) : (
-                                        <>
-                                            Sign In
-                                            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                                        </>
-                                    )}
-                                </button>
-                            </motion.div>
-                        </form>
+                                
+                                {error && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="p-3.5 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium flex items-center gap-2"
+                                    >
+                                        <AlertCircle size={18} />
+                                        <span>{error}</span>
+                                    </motion.div>
+                                )}
+                                
+                                <motion.div variants={fadeInUp} className="pt-2">
+                                    <button 
+                                        type="submit" 
+                                        disabled={isLoading}
+                                        className="w-full py-4 bg-[#0f172a] hover:bg-black text-white font-semibold rounded-[1rem] shadow-[0_4px_14px_0_rgb(0,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.23)] hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0 disabled:shadow-none text-[15px]"
+                                    >
+                                        {isLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Sign In"}
+                                    </button>
+                                </motion.div>
+                            </form>
 
-                        <motion.div variants={itemVariants} className="mt-8 text-center text-sm font-medium text-slate-500">
-                            Don't have an account?{" "}
-                            <Link to="/register" className="text-sky-600 hover:text-sky-700 transition-colors">
-                                Create an account
-                            </Link>
+                            <motion.div variants={fadeInUp} className="mt-8 text-center text-[14px] font-medium text-slate-500 flex justify-center items-center gap-1.5 pb-2">
+                                Don't have an account?{" "}
+                                <Link to="/register" className="text-slate-900 font-bold hover:underline">
+                                    Sign up here
+                                </Link>
+                            </motion.div>
                         </motion.div>
                     </motion.div>
                 </div>
-                
-                {/* Decorative background blobs for right side */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-sky-200/40 rounded-full mix-blend-multiply filter blur-[100px] opacity-50 z-0 pointer-events-none" />
-                <div className="absolute -bottom-32 -left-32 w-[400px] h-[400px] bg-blue-200/40 rounded-full mix-blend-multiply filter blur-[80px] opacity-50 z-0 pointer-events-none" />
+            </div>
+            
+            {/* Mobile Header elements (only visible on mobile to keep branding) */}
+            <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-20 sm:hidden">
+                <Link to="/" className="flex items-center gap-2 text-xl font-bold tracking-tight text-white">
+                    <div className="size-6 rounded-md bg-white flex items-center justify-center shadow-lg">
+                        <span className="text-slate-900 text-sm leading-none font-black">+</span>
+                    </div>
+                    HealthSync
+                </Link>
             </div>
         </div>
     );

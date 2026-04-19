@@ -21,16 +21,8 @@ export default function App() {
                 <main className="flex-grow w-full block">
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/login" element={
-                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-500">
-                                <Login />
-                            </div>
-                        } />
-                        <Route path="/register" element={
-                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-500">
-                                <Register />
-                            </div>
-                        } />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
                         <Route path="/doctor" element={
                             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-500">
                                 <PrivateRoute><DoctorPage /></PrivateRoute>
